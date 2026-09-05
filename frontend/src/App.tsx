@@ -3,38 +3,45 @@ import {
   Routes,
   Route,
   Navigate,
+  useNavigate,
 } from "react-router-dom";
 
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import EmployeesPage from "./pages/EmployeesPage";
+import CreateEmployee from "./pages/CreateEmployee";
 
-function Dashboard() {
-  const { user, logout } = useAuth();
+function DashboardRoute() {
+  const navigate = useNavigate();
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h1>PeoplePay360 Dashboard</h1>
+    <Dashboard
+      onEmployees={() => navigate("/employees")}
+      onCreateEmployee={() => navigate("/employees/new")}
+    />
+  );
+}
 
-      <p>
-        Login successful.
-      </p>
+function EmployeesRoute() {
+  const navigate = useNavigate();
 
-      {user && (
-        <>
-          <p>
-            Email: {user.email}
-          </p>
+  return (
+    <EmployeesPage
+      onBack={() => navigate("/dashboard")}
+      onCreateEmployee={() => navigate("/employees/new")}
+    />
+  );
+}
 
-          <p>
-            Role: {user.role}
-          </p>
-        </>
-      )}
+function CreateEmployeeRoute() {
+  const navigate = useNavigate();
 
-      <button onClick={logout}>
-        Logout
-      </button>
-    </div>
+  return (
+    <CreateEmployee
+      onBack={() => navigate("/employees")}
+      onDashboard={() => navigate("/dashboard")}
+    />
   );
 }
 
@@ -77,7 +84,25 @@ export default function App() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <DashboardRoute />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/employees"
+            element={
+              <ProtectedRoute>
+                <EmployeesRoute />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/employees/new"
+            element={
+              <ProtectedRoute>
+                <CreateEmployeeRoute />
               </ProtectedRoute>
             }
           />
