@@ -10,8 +10,10 @@ import { AuthProvider, useAuth } from "./auth/AuthContext";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import EmployeesPage from "./pages/EmployeesPage";
-import CreateEmployee from "./pages/CreateEmployee";
+import CreateEmployee from "./pages/EmployeeForm.tsx";
 
+import ModulePage from "./pages/ModulePage";
+import SettingsPage from "./pages/SettingsPage";
 function DashboardRoute() {
   const navigate = useNavigate();
 
@@ -19,6 +21,7 @@ function DashboardRoute() {
     <Dashboard
       onEmployees={() => navigate("/employees")}
       onCreateEmployee={() => navigate("/employees/new")}
+      onNavigate={navigate}
     />
   );
 }
@@ -30,6 +33,7 @@ function EmployeesRoute() {
     <EmployeesPage
       onBack={() => navigate("/dashboard")}
       onCreateEmployee={() => navigate("/employees/new")}
+      onNavigate={navigate}
     />
   );
 }
@@ -43,6 +47,16 @@ function CreateEmployeeRoute() {
       onDashboard={() => navigate("/dashboard")}
     />
   );
+}
+
+function ModuleRoute({ kind }: { kind: "Contracts" | "Attendance" | "Time Off" | "Working Schedules" }) {
+  const navigate = useNavigate();
+  return <ModulePage kind={kind} onNavigate={navigate} />;
+}
+
+function SettingsRoute() {
+  const navigate = useNavigate();
+  return <SettingsPage onNavigate={navigate} />;
 }
 
 function ProtectedRoute({
@@ -106,6 +120,13 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route path="/contracts" element={<ProtectedRoute><ModuleRoute kind="Contracts" /></ProtectedRoute>} />
+          <Route path="/attendance" element={<ProtectedRoute><ModuleRoute kind="Attendance" /></ProtectedRoute>} />
+          <Route path="/time-off" element={<ProtectedRoute><ModuleRoute kind="Time Off" /></ProtectedRoute>} />
+          <Route path="/working-schedules" element={<ProtectedRoute><ModuleRoute kind="Working Schedules" /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><SettingsRoute /></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
 
         </Routes>
 

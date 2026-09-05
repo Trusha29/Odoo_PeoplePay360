@@ -11,6 +11,7 @@ import api from "../services/api";
 type EmployeesPageProps = {
   onBack: () => void;
   onCreateEmployee: () => void;
+  onNavigate: (path: string) => void;
 };
 type Employee = {
   id: number;
@@ -24,7 +25,7 @@ type Employee = {
   department: { name: string } | null;
 };
 
-export default function EmployeesPage({ onBack, onCreateEmployee }: EmployeesPageProps) {
+export default function EmployeesPage({ onBack, onCreateEmployee, onNavigate }: EmployeesPageProps) {
   const { user, logout } = useAuth();
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("All departments");
@@ -37,7 +38,7 @@ export default function EmployeesPage({ onBack, onCreateEmployee }: EmployeesPag
     let active = true;
 
     api.get<{ success: boolean; data: Employee[] }>("/employees")
-      .then((response) => {
+.then((response: { data: { success: boolean; data: Employee[] } }) => {
         if (active) {
           setEmployees(response.data.data);
         }
@@ -82,12 +83,12 @@ export default function EmployeesPage({ onBack, onCreateEmployee }: EmployeesPag
         <nav className="sidebar-nav">
           <SideItem icon={<LayoutDashboard size={19} />} label="Dashboard" onClick={onBack} />
           <SideItem icon={<Users size={19} />} label="Employees" active />
-          <SideItem icon={<BriefcaseBusiness size={19} />} label="Contracts" />
-          <SideItem icon={<Clock3 size={19} />} label="Attendance" />
-          <SideItem icon={<CalendarDays size={19} />} label="Time Off" />
-          <SideItem icon={<ClipboardList size={19} />} label="Working Schedules" />
+          <SideItem icon={<BriefcaseBusiness size={19} />} label="Contracts" onClick={() => onNavigate("/contracts")} />
+          <SideItem icon={<Clock3 size={19} />} label="Attendance" onClick={() => onNavigate("/attendance")} />
+          <SideItem icon={<CalendarDays size={19} />} label="Time Off" onClick={() => onNavigate("/time-off")} />
+          <SideItem icon={<ClipboardList size={19} />} label="Working Schedules" onClick={() => onNavigate("/working-schedules")} />
         </nav>
-        <div className="sidebar-section-title settings-title">SYSTEM</div><nav className="sidebar-nav"><SideItem icon={<Settings size={19} />} label="Settings" /></nav>
+        <div className="sidebar-section-title settings-title">SYSTEM</div><nav className="sidebar-nav"><SideItem icon={<Settings size={19} />} label="Settings" onClick={() => onNavigate("/settings")} /></nav>
         <div className="sidebar-bottom"><div className="sidebar-user"><div className="avatar">HR</div><div><strong>HR Manager</strong><span>{user?.email}</span></div></div><button className="sidebar-logout" onClick={logout} aria-label="Log out"><LogOut size={18} /></button></div>
       </aside>
 

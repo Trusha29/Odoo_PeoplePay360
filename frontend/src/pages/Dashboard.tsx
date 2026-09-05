@@ -22,9 +22,11 @@ import { useAuth } from "../auth/AuthContext";
 export default function Dashboard({
   onEmployees,
   onCreateEmployee,
+  onNavigate,
 }: {
   onEmployees: () => void;
   onCreateEmployee: () => void;
+  onNavigate: (path: string) => void;
 }) {
   const { user, logout } = useAuth();
 
@@ -71,21 +73,25 @@ export default function Dashboard({
           <SidebarItem
             icon={<BriefcaseBusiness size={19} />}
             label="Contracts"
+            onClick={() => onNavigate("/contracts")}
           />
 
           <SidebarItem
             icon={<Clock3 size={19} />}
             label="Attendance"
+            onClick={() => onNavigate("/attendance")}
           />
 
           <SidebarItem
             icon={<CalendarDays size={19} />}
             label="Time Off"
+            onClick={() => onNavigate("/time-off")}
           />
 
           <SidebarItem
             icon={<ClipboardList size={19} />}
             label="Working Schedules"
+            onClick={() => onNavigate("/working-schedules")}
           />
 
         </nav>
@@ -99,6 +105,7 @@ export default function Dashboard({
           <SidebarItem
             icon={<Settings size={19} />}
             label="Settings"
+            onClick={() => onNavigate("/settings")}
           />
 
         </nav>
