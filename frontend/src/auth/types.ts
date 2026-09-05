@@ -6,7 +6,12 @@ export type UserRole =
   | "ADMIN";
 
 export interface User {
-  id: string;
+  id: number;
   email: string;
   role: UserRole;
+}
+
+export interface LoginResponse {
+  token: string;
+  user: User;
 }

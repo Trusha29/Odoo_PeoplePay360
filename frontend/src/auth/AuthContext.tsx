@@ -5,14 +5,20 @@ import {
   type ReactNode,
 } from "react";
 
-import type { User } from "./types";
+import api from "../services/api";
+import type {
+  User,
+  UserRole,
+} from "./types";
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
+  loading: boolean;
   login: (
     email: string,
     password: string
-  ) => boolean;
+  ) => Promise<void>;
   logout: () => void;
 }
 
@@ -21,11 +27,6 @@ const AuthContext =
     undefined
   );
 
-const DEMO_EMAIL =
-  "hrmanager@peoplepay360.com";
-
-const DEMO_PASSWORD = "Admin@123";
-
 export function AuthProvider({
   children,
 }: {
@@ -33,48 +34,93 @@ export function AuthProvider({
 }) {
   const [user, setUser] = useState<User | null>(
     () => {
-      const saved =
-        localStorage.getItem("peoplepay360_user");
+      const savedUser =
+        localStorage.getItem(
+          "peoplepay360_user"
+        );
 
-      if (!saved) return null;
+      if (!savedUser) {
+        return null;
+      }
 
       try {
-        return JSON.parse(saved);
+        return JSON.parse(savedUser);
       } catch {
+        localStorage.removeItem(
+          "peoplepay360_user"
+        );
         return null;
       }
     }
   );
 
-  const login = (
+  const [token, setToken] = useState<string | null>(
+    () => {
+      return localStorage.getItem(
+        "peoplepay360_token"
+      );
+    }
+  );
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const login = async (
     email: string,
     password: string
-  ) => {
-    if (
-      email.trim().toLowerCase() === DEMO_EMAIL &&
-      password === DEMO_PASSWORD
-    ) {
+  ): Promise<void> => {
+    setLoading(true);
+
+    try {
+      const response = await api.post(
+        "/auth/login",
+        {
+          email: email.trim(),
+          password,
+        }
+      );
+
+      const data = response.data.data;
+
       const loggedInUser: User = {
-        id: "demo-user-1",
-        email: DEMO_EMAIL,
-        role: "HR_MANAGER",
+        id: data.user.id,
+        email: data.user.email,
+        role: data.user.role as UserRole,
       };
 
+      const newToken: string = data.token;
+
+      setToken(newToken);
       setUser(loggedInUser);
+
+      localStorage.setItem(
+        "peoplepay360_token",
+        newToken
+      );
 
       localStorage.setItem(
         "peoplepay360_user",
         JSON.stringify(loggedInUser)
       );
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.message ||
+        "Login failed. Please check your credentials.";
 
-      return true;
+      throw new Error(message);
+    } finally {
+      setLoading(false);
     }
-
-    return false;
   };
 
   const logout = () => {
     setUser(null);
+    setToken(null);
+
+    localStorage.removeItem(
+      "peoplepay360_token"
+    );
+
     localStorage.removeItem(
       "peoplepay360_user"
     );
@@ -84,6 +130,8 @@ export function AuthProvider({
     <AuthContext.Provider
       value={{
         user,
+        token,
+        loading,
         login,
         logout,
       }}
